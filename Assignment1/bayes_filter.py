@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 class RobotBeliefModel:
     def __init__(self, z_prob, x_prob):
@@ -28,6 +29,24 @@ class RobotBeliefModel:
             pred = self.predict(action_tasks, initial_belief)
             initial_belief = self.update(pred, measurement_type)
             total_belief.append(initial_belief[0])
+        print(f"It took {len(total_belief)} iterations to reach belief of {initial_belief[0]}")
+        print(f"-------------------------------------------------------------------------------")
+        return total_belief
+    
+    def run_steady_state_tasks(self, action_tasks, measurement_type, initial_belief=[0.5, 0.5], tau=0.0001):
+        total_belief = []
+        relative_change = tau + 1
+        iterations = 0
+        while relative_change > tau and iterations < 1000:
+            pred = self.predict(action_tasks, initial_belief)
+            new_belief = self.update(pred, measurement_type)
+            relative_change = abs(new_belief[0] - initial_belief[0])
+            initial_belief = new_belief
+            total_belief.append(initial_belief[0])
+            iterations += 1
+
+        print(f"It took {len(total_belief)} iterations to reach a steady state belief of {initial_belief[0]}")
+        print(f"-------------------------------------------------------------------------------")
 
         return total_belief
 
@@ -45,7 +64,6 @@ z_prob = {"measure_open": {"open": 0.6, "closed": 0.2}, "measure_closed": {"open
 x_prob = {"open": {"push": {"open": 1, "closed": 0.8}, "do_nothing": {"open": 1, "closed": 0}},
           "closed": {"push": {"open": 0, "closed": 0.2}, "do_nothing": {"open": 0, "closed": 1}}}
 
-# Creating an instance of the RobotBeliefModel class
 robot_model = RobotBeliefModel(z_prob, x_prob)
 
 # tasks 1
@@ -62,6 +80,8 @@ plot_total_belief(x_values, total_belief, 'push', 'open')
 
 # tasks 3
 initial_belief = [0.5, 0.5]
-total_belief = robot_model.run_tasks(['push', 'open', 'closed'], 'measure_closed', initial_belief)
+# tau = 0.001 #tolerance for reaching steady state
+# relative_change = tau + 1
+total_belief = robot_model.run_steady_state_tasks(['push', 'open', 'closed'], 'measure_closed', initial_belief)
 x_values = list(range(1, len(total_belief) + 1))
 plot_total_belief(x_values, total_belief, 'push', 'closed')
