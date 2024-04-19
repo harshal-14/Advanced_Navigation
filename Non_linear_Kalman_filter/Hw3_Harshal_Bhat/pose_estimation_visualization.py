@@ -19,10 +19,10 @@ def main():
 
     # Initialize observation model
     atagmap = ObservationModel()
-    positions = List[np.ndarray] = []
-    orientations = [np.ndarray] = []
-    times = List[float] = []
-    interpolated_gt = List[np.ndarray] = []
+    positions : List[np.ndarray] = []
+    orientations : List[np.ndarray] = []
+    times : List[float] = []
+    interpolated_gt : List[np.ndarray] = []
 
     # Data processing
     for datum in data:
