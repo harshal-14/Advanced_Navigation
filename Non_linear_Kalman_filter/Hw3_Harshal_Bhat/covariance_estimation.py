@@ -37,8 +37,8 @@ def estimate_total_cov(gt, positions, orientations, data):
 
 
 data_dir = "/home/lucifer/WPI/Spring_courses/Advanced_Navigation/Non_linear_Kalman_filter/data"
-data_num = 1
-for data_num in range(1, 8):
+data_num = 0
+for data_num in range(0, 8):
     dataset = f"{data_dir}/studentdata{data_num}.mat"
 
     total_cov: List[np.ndarray] = []
