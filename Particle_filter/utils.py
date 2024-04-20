@@ -73,6 +73,7 @@ def interpolate_ground_truth(ground_truth_data: List[ActualData], estimation: Da
     # Find the first ground truth time that is past that timestamp
     data_point1 = None
     data_point2 = None
+    # import ipdb; ipdb.set_trace()
     for idx in range(1, len(ground_truth_data)):  # Start at index 1 to safely access index - 1
         if ground_truth_data[idx].timestamp > timestamp:
             data_point1 = ground_truth_data[idx - 1]
