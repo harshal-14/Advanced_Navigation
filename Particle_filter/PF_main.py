@@ -54,7 +54,7 @@ def main():
             orientations.append(pose_to_ypr(orientation))
             times.append(datum.timestamp)
 
-        particle_filter = ParticleFilter(num_particles=10000)
+        particle_filter = ParticleFilter(num_particles=5000)
         pf_estimates = particle_filter.run_filter(data, type = "weighted_average")
 
         ground_truth_positions = np.array([[gti[0], gti[1], gti[2]] for gti in interpolated_gt[1:]]).reshape(-1, 3)

@@ -213,8 +213,8 @@ def plot_rmse_loss(
     axes.set_ylabel("RMSE Loss (m)")
 
     # Plot the RMSEs
-    axes.plot(timestamps, cam_pos_rmse, label="Accumulated Error for Camera Estimates")
-    axes.plot(timestamps[1:], x_pos_rmse, label="Error for Particle Filter")
+    axes.plot(timestamps, cam_pos_rmse, label=" Error for PF")
+    axes.plot(timestamps[1:], x_pos_rmse, label="Error for UKF Filter")
     axes.legend()
 
     orientation_fig = plt.figure(figsize=(10, 6), layout="tight")
@@ -224,8 +224,8 @@ def plot_rmse_loss(
     axes.set_ylabel("RMSE Loss (rad)")
 
     # Plot the RMSEs
-    axes.plot(timestamps, cam_orientation_rmse, label="Accumulated Error for Camera Estimates")
-    axes.plot(timestamps[1:], x_orientation_rmse, label="Error for Particle Filter")
+    axes.plot(timestamps, cam_orientation_rmse, label="Error for PF")
+    axes.plot(timestamps[1:], x_orientation_rmse, label="Error for UKF")
     axes.legend()
 
     return pos_fig, orientation_fig

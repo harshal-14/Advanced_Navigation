@@ -17,10 +17,10 @@ estimated_cov = np.array([[ 0.00787652,  0.0002269,   0.00462655,  0.00362929,  
 
 
 class ParticleFilter:
-    def __init__(self, num_particles, final_min_num_particles = 0.5, covariance_matrix = estimated_cov):
+    def __init__(self, num_particles, final_min_num_particles = 0.5, cov_matrix = estimated_cov):
         self.num_particles = num_particles
         self.final_min_num_particles = 0.5 * num_particles
-        self.covariance_matrix = covariance_matrix
+        self.cov_matrix = cov_matrix
         self.observation_model = ObservationModel()
                       
     def predict(
@@ -127,7 +127,7 @@ class ParticleFilter:
         # Use the covariance values as a starting point for the observation model.
         measurement_matrix = np.zeros((6, 15))
         measurement_matrix[0:6, 0:6] = np.eye(6)
-        updated_measurement = (measurement_matrix @ measurement) + np.diag(self.covariance_matrix).reshape(6, 1)
+        updated_measurement = (measurement_matrix @ measurement) + np.diag(self.cov_matrix).reshape(6, 1)
         return updated_measurement
 
     def resampling(self, particles, W):

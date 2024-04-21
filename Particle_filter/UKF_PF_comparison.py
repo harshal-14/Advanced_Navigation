@@ -66,16 +66,16 @@ def main():
     # Load dataset
     dataset = os.path.join(data_dir, "studentdata2.mat")
     drone_data, gt = load_mat_data(dataset)
-    print(f"1st row of data for debugging: {drone_data[0]}")
+    # print(f"1st row of data for debugging: {drone_data[0]}")
     dataset_name = os.path.basename(dataset).split('.')[0]
 
     # Initialize observation model
     atagmap = ObservationModel()
-    data : List[Data] = []
-    positions : List[np.ndarray] = []
-    orientations : List[np.ndarray] = []
-    times : List[float] = []
-    interpolated_gt : List[np.ndarray] = []
+    data = []
+    positions = []
+    orientations = []
+    times = []
+    interpolated_gt = []
 
     # Data processing
     for datum in drone_data:
@@ -83,7 +83,7 @@ def main():
             continue
         try:
             interpolated_gt.append(interpolate_ground_truth(gt, datum))
-        except IndexError:  # No ground truth at this time
+        except Exception:
             continue
         data.append(datum)
         orientation, position = atagmap.estimate_pose(datum.tags)
@@ -92,12 +92,20 @@ def main():
         times.append(datum.timestamp)
     
     # Unscented Kalman Filter
+    print("Running UKF")
+    start_ukf_time = time()
     ukf = UnscentedKalmanFilter()
     ukf_estimates = ukf.run_filter(data)
+    end_ukf_time = time()
+    print(f"UKF took {end_ukf_time - start_ukf_time} seconds")
+    
     # Particle Filter
+    print("Running PF for 5000 particles")
+    start_pf_time = time()
     pf = ParticleFilter(num_particles=5000)
     pf_estimates = pf.run_filter(data)
-
+    end_pf_time = time()
+    print(f"PF took {end_pf_time - start_pf_time} seconds")
     ground_truth_positions = np.array([[gti[0], gti[1], gti[2]] for gti in interpolated_gt[1:]]).reshape(-1, 3)
     ukf_estimates_positions = np.squeeze(ukf_estimates)[:, :3]
     pf_estimates_positions = np.squeeze(pf_estimates)[:, :3]
@@ -120,8 +128,20 @@ def main():
         pf_estimates_data,
         ukf_estimates_data
     )
-    pos_fig.savefig(os.path.join(img_dir, f"{dataset_name}_ukf_pf_comparison.png"))
 
+    #Plot RMSE loss comparison for PF and UKF
+    pos_rmse, orientation_rmse = plot_rmse_loss(
+        interpolated_gt,
+        pf_estimates_data,
+        ukf_estimates_data,
+        timestamps
+    )
+
+    pos_fig.savefig(os.path.join(img_dir, f"{dataset_name}_ukf_pf_comparison.png"))
+    orient_fig.savefig(os.path.join(img_dir, f"{dataset_name}_ukf_pf_comparison_orientations.png"))
+    pos_rmse.savefig(os.path.join(img_dir, f"{dataset_name}_ukf_pf_pos_rmse_comparison.png"))
+    orientation_rmse.savefig(os.path.join(img_dir, f"{dataset_name}_ukf_pf_orient_rmse_comparison.png"))
+    
     #Print RMSE loss comparison for PF and UKF
     print(f"RMSE Loss for PF: {rmse(ground_truth_positions, pf_estimates_positions)}")
     print(f"RMSE Loss for UKF: {rmse(ground_truth_positions, ukf_estimates_positions)}")
